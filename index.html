@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Análise Mega-Sena - JavaScript</title>
+
+    <!-- Bibliotecas -->
+    <script src="https://cdn.jsdelivr.net/npm/regression"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+    />
+
+    <style>
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        justify-content: center;
+        padding: 0rem;
+      }
+      canvas {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Análise de Ocorrências - Mega-Sena</h1>
+      <p>
+        Este projeto tem como objetivo explorar os dados históricos de sorteios
+        da Mega-Sena para realizar análises estatísticas e aplicar técnicas de
+        aprendizado de máquina, especificamente regressão linear. O foco está em
+        compreender a relação entre os números sorteados e suas frequências de
+        ocorrência ao longo dos anos, utilizando diferentes abordagens e filtros
+        nos dados.
+      </p>
+
+      <p>
+        Também é possível ver os dados filtrados em
+        <a href="./10anos.html">10 anos (2014 até 2024)</a>
+      </p>
+
+      <!-- Dados CSV embutidos -->
+      <script id="csvData">
+        "Bola", "QTD";
+        "1", "278";
+        "2", "283";
+        "3", "264";
+        "4", "299";
+        "5", "306";
+        "6", "285";
+        "7", "270";
+        "8", "280";
+        "9", "267";
+        "10", "333";
+        "11", "300";
+        "12", "270";
+        "13", "292";
+        "14", "275";
+        "15", "246";
+        "16", "294";
+        "17", "298";
+        "18", "271";
+        "19", "274";
+        "20", "281";
+        "21", "239";
+        "22", "254";
+        "23", "298";
+        "24", "283";
+        "25", "284";
+        "26", "235";
+        "27", "298";
+        "28", "294";
+        "29", "285";
+        "30", "301";
+        "31", "261";
+        "32", "302";
+        "33", "308";
+        "34", "309";
+        "35", "299";
+        "36", "289";
+        "37", "307";
+        "38", "302";
+        "39", "274";
+        "40", "265";
+        "41", "296";
+        "42", "303";
+        "43", "300";
+        "44", "299";
+        "45", "281";
+        "46", "299";
+        "47", "273";
+        "48", "263";
+        "49", "289";
+        "50", "281";
+        "51", "288";
+        "52", "284";
+        "53", "322";
+        "54", "293";
+        "55", "244";
+        "56", "294";
+        "57", "274";
+        "58", "277";
+        "59", "278";
+        "60", "273";
+      </script>
+      <div class="grid">
+        <!-- Modelo 1: Dados Completos -->
+        <div>
+          <h3>Todos os Sorteios</h3>
+          <canvas id="fullDataChart"></canvas>
+          <div id="fullDataStats"></div>
+          <p>
+            Análise histórica completa desde o início dos sorteios. Mostra uma
+            distribuição quase uniforme com pequenas variações aleatórias.
+          </p>
+        </div>
+
+        <!-- Modelo 2: Filtro 278-290 -->
+        <div>
+          <h3>Faixa Média (278-290 ocorrências)</h3>
+          <canvas id="filteredChart"></canvas>
+          <div id="filteredStats"></div>
+          <p>
+            Subconjunto próximo à mediana histórica. Demonstra como mesmo
+            valores centrais mantêm aleatoriedade.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Função para parsear CSV
+      function parseCSV(csvText) {
+        const lines = csvText.trim().split("\n");
+        const headers = lines[0].replace(/"/g, "").split(",");
+
+        return lines.slice(1).map((line) => {
+          const values = line.replace(/"/g, "").split(",");
+          return {
+            x: parseInt(values[0]),
+            y: parseInt(values[1]),
+          };
+        });
+      }
+
+      // Carregar dados do CSV
+      const csvText = document.getElementById("csvData").textContent;
+      const fullData = parseCSV(csvText);
+
+      // 1. Análise Completa ==================================
+      const fullRegression = regression.linear(
+        fullData.map((d) => [d.x, d.y]),
+        { precision: 6 }
+      );
+
+      // Configurar gráfico completo
+      new Chart(document.getElementById("fullDataChart"), {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "Dados Completos",
+              data: fullData,
+              backgroundColor: "rgba(40, 167, 69, 0.8)",
+            },
+            {
+              label: "Regressão",
+              data: fullData.map((d) => ({
+                x: d.x,
+                y:
+                  fullRegression.equation[0] * d.x + fullRegression.equation[1],
+              })),
+              type: "line",
+              borderColor: "rgba(0, 123, 255, 0.8)",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: "Número da Bola" } },
+            y: { title: { display: true, text: "Ocorrências" } },
+          },
+        },
+      });
+
+      // 2. Dados Filtrados (278-290) =========================
+      const filteredData = fullData.filter((d) => d.y >= 278 && d.y <= 290);
+      const filteredRegression = regression.linear(
+        filteredData.map((d) => [d.x, d.y]),
+        { precision: 6 }
+      );
+
+      // Configurar gráfico filtrado
+      new Chart(document.getElementById("filteredChart"), {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "Dados Filtrados",
+              data: filteredData,
+              backgroundColor: "rgba(255, 193, 7, 0.8)",
+            },
+            {
+              label: "Regressão Filtrada",
+              data: filteredData.map((d) => ({
+                x: d.x,
+                y:
+                  filteredRegression.equation[0] * d.x +
+                  filteredRegression.equation[1],
+              })),
+              type: "line",
+              borderColor: "rgba(220, 53, 69, 0.8)",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: "Número da Bola" } },
+            y: { title: { display: true, text: "Ocorrências" } },
+          },
+        },
+      });
+
+      // Atualizar estatísticas
+      function showStats(regressionResult, elementId) {
+        const stats = `
+        <article>
+            <h3>Estatísticas do Modelo</h3>
+            <ul>
+                <li>Equação: y = ${regressionResult.equation[0].toFixed(
+                  4
+                )}x + ${regressionResult.equation[1].toFixed(4)}</li>
+                <li>R²: ${regressionResult.r2.toFixed(6)}</li>
+                <li>Coef. Angular: ${regressionResult.equation[0].toFixed(
+                  4
+                )}</li>
+                <li>Intercepto: ${regressionResult.equation[1].toFixed(4)}</li>
+            </ul>
+        </article>
+    `;
+        document.getElementById(elementId).innerHTML = stats;
+      }
+
+      showStats(fullRegression, "fullDataStats");
+      showStats(filteredRegression, "filteredStats");
+    </script>
+  </body>
+</html>
