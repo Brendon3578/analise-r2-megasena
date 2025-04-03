@@ -36,7 +36,7 @@ O objetivo do projeto é visualizar e analisar os dados históricos da Mega-Sena
 - **Visualização Interativa**: Gráficos que mostram os dados reais e as linhas ajustadas pela regressão linear.
 - **Estatísticas do Modelo**:
   - Equação da regressão linear.
-  - Coeficiente de determinação ($$ R^2 $$).
+  - Coeficiente de determinação R².
   - Coeficientes angular e linear.
 - **Três Análises Separadas**:
   - Dados completos.
@@ -73,4 +73,4 @@ Este projeto demonstra que, apesar do uso de ferramentas estatísticas avançada
 
 Este projeto é livre para uso e modificação.
 
-Além disso foi utilizado de IAs para a adaptação para a página em HTML, CSS e JavaScript como PerplexityAI e ChatGPT
+Foi utilizado de IAs para a adaptação para a página em HTML, CSS e JavaScript como PerplexityAI e ChatGPT
