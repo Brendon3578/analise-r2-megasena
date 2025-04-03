@@ -5,9 +5,9 @@ Este projeto utiliza JavaScript para analisar os números sorteados na Mega-Sena
 ## Autores
 
 - Brendon Gomes da Silva
-- Elias Barbosa Souza
+- Elias Sousa Barbosa
 - Adriano das Chagas Barros
-- Rafael Rodrigues Gonçalves
+- Rafael Ricardo Gonçalves
 
 ---
 
